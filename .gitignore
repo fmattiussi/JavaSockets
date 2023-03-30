@@ -1,0 +1,12 @@
+# ignora i file generati da macos
+.DS_Store?
+._*
+
+# ignora la cartella contenente le build
+bin/
+
+# ignora la cartella contenente le librerie
+lib/
+
+# ignora javadoc
+javadoc/
