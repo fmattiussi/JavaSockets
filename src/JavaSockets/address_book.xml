@@ -1,0 +1,4 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<java_sockets_addresses>
+    <address host_address="192.168.1.1" host_name="server" host_password="" host_port="8080" host_username=""/>
+</java_sockets_addresses>
