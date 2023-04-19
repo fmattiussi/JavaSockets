@@ -19,6 +19,17 @@ public class AddressBookItem {
 		this.hostPassword = hostPassword;
 	}
 	
+	public Boolean isEmpty() {
+		
+		if (this.hostName == null && this.hostAddress == null && this.hostPort == null && this.hostUsername == null && this.hostPassword == null) {
+			
+			return true;
+		} else {
+			
+			return false;
+		}
+	}
+	
 	String getHostName() {
 		return this.hostName;
 	}
@@ -37,6 +48,14 @@ public class AddressBookItem {
 	
 	String getHostPassword() {
 		return this.hostPassword;
+	}
+	
+	public void set(AddressBookItem item) {
+		this.hostName = item.getHostName();
+		this.hostAddress = item.getHostAddress();
+		this.hostPort = item.getHostPort();
+		this.hostUsername = item.getHostUsername();
+		this.hostPassword = item.getHostPassword();
 	}
 	
 	public void setHostName(String hostName) {

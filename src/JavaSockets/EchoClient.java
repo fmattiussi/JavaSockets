@@ -8,9 +8,9 @@ import java.io.PrintWriter;
 
 public class EchoClient {
 	
-	public static void startClient(String ip, Integer port) throws IOException {
+	public static void startClient(String ip, String port) throws IOException {
 		
-		Socket socket = new Socket(ip, port); // inizializzazione del socket
+		Socket socket = new Socket(ip, Integer.parseInt(port)); // inizializzazione del socket
 		System.out.println("connessione stabilita");
 		
 		Scanner socketIn = new Scanner(socket.getInputStream()); // input stream del socket
@@ -47,39 +47,52 @@ public class EchoClient {
 
     public static void main(String[] args) throws Exception {
     	
+    	AddressBook addressBook = new AddressBook("/Users/francesco/eclipse-workspace/JavaSockets/src/JavaSockets/address_book.xml");
+    	
     	if (args.length > 0) {
-    		
-    		Appearence.helloHeader();
     		
 	    	switch (args[0]) {
 	    		
 	    		case "blood":
-	    			
+	    			Appearence.bloodyHelloHeader();
+	    			break;
 	    		
 	    		case "wet":
-	    			
+	    			Appearence.wetHelloHeader();
+	    			break;
 	    		
 	    		case "connect":
 	    			
 	    			switch (args[1]) {
 	    				
 	    				case "to":
+	    					AddressBookItem itemToConnect = addressBook.itemFromString(args[2]);
+	    					
+	    					startClient(itemToConnect.getHostAddress(), itemToConnect.getHostPort());
+	    					break;
 	    					
 	    				
 	    				case "new":
-	    					
+	    					startClient(args[2], args[3]);
+	    					break;
 	    			}
+	    			
+	    			break;
 	    		
 	    		case "addressbook":
 	    			
-	    			AddressBook addressBook = new AddressBook("/Users/francesco/eclipse-workspace/JavaSockets/src/JavaSockets/address_book.xml");
+	    			Appearence.helloHeader();
 	    			
 	    			switch (args[1]) {
 	    			
 	    				case "list":
 	    					addressBook.list();
+	    					break;
 	    					
 	    				case "add":
+	    					
+	    					// TODO: far fare questo controllo a una funzione apposita in un try catch if checkArgs(2, 4, true, true) (from, to, exist?, valid?)
+	    					
 	    					String hostName = args[2];
 	    					String hostAddress = args[3];
 	    					String hostPort = args[4];
@@ -88,35 +101,30 @@ public class EchoClient {
 	    					
 	    					addressBook.add(new AddressBookItem(hostName, hostAddress, hostPort, "", ""));
 	    					
+	    					// TODO: far fare questa cosa al logger 
+	    					
 	    					System.out.println("Il seguente elemento è stato aggiunto agli host salvati:\n");
 	    					System.out.println("	Nome: " + hostName);
 	    					System.out.println("	Indirizzo: " + hostAddress);
 	    					System.out.println("	Porta: " + hostPort);
 	    					
 	    					System.out.println("\n");
-	    					
-	    				case "edit":
-	    					
+	    					break;
 	    					
 	    				case "delete":
+	    					addressBook.delete(args[2]);
+	    					break;
 	    					
 	    			}
 	    			
-	    		
-	    		case "listen":
-	    			
-	    		
+	    			break;
 	    	}
 	    	
     	} else {
+    		
     		Appearence.helloHeader();
+    		System.out.println("Non è stato specificato nessun comando, per connettersi a un host usare la seguente sintassi:\n\n	/java/sockets/path connect to new [indirizzo] [porta]");
     	}
-
-//        try {
-//        	startClient("localhost", 4567); // la funzione viene inserita all'interno di una closure try/catch per gestire gli eventuali errori
-//        } catch (IOException e) {
-//        	System.out.println("errore nell'avvio del client socket");
-//        }
 
     }
     

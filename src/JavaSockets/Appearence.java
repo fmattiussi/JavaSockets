@@ -27,7 +27,7 @@ public class Appearence {
 				+ " ░   ░        ░  ░   ░        ░  ░         ░      ░ ░  ░ ░      ░  ░      ░  ░              ░     ░ ░          ░  ░ ░     ░  ░         ░          \n"
 				+ "                    ░                                  ░                                          ░                                               \n"
 				+ "\n"
-				+ "                                                           *** di Mattiussi & Dell'Asino ***\n");
+				+ "                                                           *** di Mattiussi & Dell'Asino ***                                                      \n");
 		
 	}
 	
@@ -40,7 +40,7 @@ public class Appearence {
 				+ " \\_ )||_|  (_)     |_|  (_)  `----'   )---'    \\____\\|((_)-'/( __.' `-'  `----'     \\____\\|( __.'`-'/( __.'/(  (_)   `-'   \n"
 				+ "   (_)                               (_)             (_)   (__)                           (_)      (__)   (__)             \n"
 				+ "\n"
-				+ "                                              *** di Mattiussi & Dell'Asino ***\n");
+				+ "                                              *** di Mattiussi & Dell'Asino ***                                              \n");
 	}
 
 }

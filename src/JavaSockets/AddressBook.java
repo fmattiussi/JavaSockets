@@ -28,6 +28,8 @@ import org.xml.sax.SAXException;
 
 public class AddressBook {
 	
+	public static final String ADDRESS_NOT_FOUND = "ADDRESS_NOT_FOUND";
+	
 	File addressBookFile;
 	
 	DocumentBuilderFactory factory;
@@ -35,6 +37,7 @@ public class AddressBook {
 	Document document;
 	
 	public AddressBook(String addressBookFile) {
+		
 		this.addressBookFile = new File(addressBookFile);
 		
 		this.factory = DocumentBuilderFactory.newInstance();
@@ -51,88 +54,206 @@ public class AddressBook {
 	}
 	
 	public void add(AddressBookItem item) {
-		List<AddressBookItem> items = Arrays.asList(item);
-		writeItems(items);
+		
+		Element rootElement = (Element)document.getElementsByTagName("java_sockets_addresses").item(0);
+		
+		Element addressItem = document.createElement("address");
+		
+		rootElement.appendChild(addressItem);
+		
+		addressItem.setAttribute("id", item.getHostName());
+		addressItem.setAttribute("host_address", item.getHostAddress());
+		addressItem.setAttribute("host_port", item.getHostPort());
+		addressItem.setAttribute("host_username", item.getHostUsername());
+		addressItem.setAttribute("host_password", item.getHostPassword());
+		
+		try {
+			
+			writeAddressBookFile();
+		} catch (TransformerException e) {
+			
+			e.printStackTrace();
+		}
 	}
 	
-	public void edit(AddressBookItem item, String hostAddress, String hostPort, String username, String password) {
+	public void delete(String itemName) {
 		
+		// TODO: questo non funziona
+		
+		try {
+			
+			AddressBookItem itemToDelete = itemFromString(itemName);
+			System.out.print(itemToDelete.getHostName());
+			
+			Element rootElement = (Element)document.getElementsByTagName("java_sockets_addresses").item(0);
+			
+			Element elementToRemove = document.getElementById(itemToDelete.getHostName());
+			rootElement.removeChild(elementToRemove);
+			
+			try {
+				writeAddressBookFile();
+			} catch (TransformerException e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			}
+			
+		} catch (IOException e) {
+			
+			System.out.println("L'host [" + itemName + "] non è stato trovato tra gli host salvati");
+		}
 	}
 	
-	public void delete(AddressBookItem item) {
-		
-	}
+	// TODO: scrivere i messaggi d'errore
 	
 	public void list() {
 		
-		// TODO: mi sono fermato qua prima che mi venisse mal di testa
+		System.out.println("Host salvati:\n");
 		
 		document.getDocumentElement().normalize();
 		
 		NodeList addressNodes = document.getElementsByTagName("address");
 		
-		List<Node> nodes = IntStream.range(0, addressNodes.getLength())
-			    .mapToObj(addressNodes::item)
-			    .collect(Collectors.toList());
+		List<Node> nodes = convertNodeList(addressNodes);
 		
 		nodes.forEach((addressNode) -> {
 			Element nodo = (Element)addressNode;
-			Node hostName = nodo.getElementsByTagName("host_name").item(0);
-			System.out.println("Nome: " + hostName.getTextContent());
+			
+			AddressBookItem addressItem;
+			
+			try {
+				
+				addressItem = itemFromElement(nodo);
+				
+				if (addressItem.getHostUsername() != "" && addressItem.getHostPassword() != "") {
+					
+					System.out.println("	* [" + addressItem.getHostName() + "] [auth] {address: " + addressItem.getHostAddress() + ", port: " + addressItem.getHostPort() + "}\n");
+				} else {
+					
+					System.out.println("	* [" + addressItem.getHostName() + "] [no auth] {address: " + addressItem.getHostAddress() + ", port: " + addressItem.getHostPort() + "}" + "\n");
+				}
+				
+			} catch (IOException e) {
+
+				e.printStackTrace();
+			}
+			
 		});
 		
+		System.out.println("Per connetterti a un host usa il comando <connect to nome_host>");
+		
 	}
 	
-	public AddressBookItem itemFromString(String itemString) {
-		
-		return new AddressBookItem();
-	}
+	// TODO: scrivere i messaggi d'errore
 	
-	private List<AddressBookItem> fetchItems() {
+	public AddressBookItem itemFromString(String itemString) throws IOException {
 		
-		return null;
-	}
-	
-	private void writeItems(List<AddressBookItem> items) {
+		document.getDocumentElement().normalize();
 		
-		Element rootElement = document.createElement("java_sockets_addresses");
-		document.appendChild(rootElement);
+		NodeList addressNodes = document.getElementsByTagName("address");
 		
-		items.forEach((item) -> {
+		List<Node> nodes = convertNodeList(addressNodes);
+		
+		AddressBookItem retreivedItem = new AddressBookItem();
+		
+		nodes.forEach((addressNode) -> {
+			Element nodo = (Element)addressNode;
 			
-			Element addressItem = document.createElement("address");
+			AddressBookItem addressItem;
 			
-			rootElement.appendChild(addressItem);
-			
-			addressItem.setAttribute("host_name", item.getHostName());
-			addressItem.setAttribute("host_address", item.getHostAddress());
-			addressItem.setAttribute("host_port", item.getHostPort());
-			addressItem.setAttribute("host_username", item.getHostUsername());
-			addressItem.setAttribute("host_password", item.getHostPassword());
+			try {
+				
+				addressItem = itemFromElement(nodo);
+				
+				if (addressItem.getHostName().equals(itemString)) {
+					
+					retreivedItem.set(addressItem);
+				}
+				
+			} catch (IOException e) {
+				
+				e.printStackTrace();
+			}
 		});
+		
+		if (retreivedItem.isEmpty()) {
+			
+			throw new IOException();
+		} else {
+			
+			return retreivedItem;
+		}
+	}
+	
+	public AddressBookItem itemFromElement(Element itemElement) throws IOException {
+		
+		String hostName = itemElement.getAttribute("id");
+		String hostAddress = itemElement.getAttribute("host_address");
+		String hostPort = itemElement.getAttribute("host_port");
+		
+		String hostUsername = itemElement.getAttribute("host_username");
+		String hostPassword = itemElement.getAttribute("host_password");
+		
+		AddressBookItem retreivedItem = new AddressBookItem(hostName, hostAddress, hostPort, hostUsername, hostPassword);
+		
+		return retreivedItem;
+	}
+	
+	// TODO: scrivere i messaggi d'errore
+	
+	private List<AddressBookItem> fetchAddresses() {
+		
+		List<AddressBookItem> addressesList = new ArrayList<AddressBookItem>();
+		
+		document.getDocumentElement().normalize();
+		
+		NodeList addressNodes = document.getElementsByTagName("address");
+		
+		List<Node> nodes = convertNodeList(addressNodes);
+		
+		nodes.forEach((addressNode) -> {
+			Element nodo = (Element)addressNode;
+			
+			try {
+				
+				AddressBookItem convertedAddress = itemFromElement(nodo);
+				addressesList.add(convertedAddress);
+				
+			} catch (IOException e) {
+				
+				e.printStackTrace();
+			}
+		});
+		
+		return addressesList;
+	}
+	
+	private List<Node> convertNodeList(NodeList addressNodes) {
+		
+		return IntStream.range(0, addressNodes.getLength())
+			    .mapToObj(addressNodes::item)
+			    .collect(Collectors.toList());
+	}
+	
+	// TODO: scrivere i messaggi d'errore
+	
+	private void writeAddressBookFile() throws TransformerException {
 		
 		try (FileOutputStream output = new FileOutputStream(addressBookFile)) {
 			
-			writeFile(document, output);
+			TransformerFactory transformerFactory = TransformerFactory.newInstance();
+	        Transformer transformer = transformerFactory.newTransformer();
+	        transformer.setOutputProperty(OutputKeys.INDENT, "yes");
+	        
+	        DOMSource source = new DOMSource(document);
+	        StreamResult result = new StreamResult(output);
+	        
+	        transformer.transform(source, result);
 			
 		} catch (IOException | TransformerException e) {
 			
 			e.printStackTrace();
 			
 		}
-		
-	}
-	
-	private void writeFile(Document document, OutputStream outputStream) throws TransformerException {
-		
-		TransformerFactory transformerFactory = TransformerFactory.newInstance();
-        Transformer transformer = transformerFactory.newTransformer();
-        transformer.setOutputProperty(OutputKeys.INDENT, "yes");
-        
-        DOMSource source = new DOMSource(document);
-        StreamResult result = new StreamResult(outputStream);
-        
-        transformer.transform(source, result);
 		
 	}
 

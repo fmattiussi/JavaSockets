@@ -1,4 +1,6 @@
 <?xml version="1.0" encoding="UTF-8" standalone="no"?>
 <java_sockets_addresses>
-    <address host_address="192.168.1.1" host_name="server" host_password="" host_port="8080" host_username=""/>
+    <address host_address="10.3.0.50" host_password="" host_port="8546" host_username="" id="laboratorio_e011"/>
+    <address host_address="github.com" host_password="github_password" host_port="2964" host_username="github_username" id="github_server"/>
+    <address host_address="raspberrypi.local" host_password="raspberry" host_port="23" host_username="pi" id="raspberry_pi"/>
 </java_sockets_addresses>
