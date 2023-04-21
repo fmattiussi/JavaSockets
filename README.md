@@ -9,7 +9,7 @@ Questo programma è un progetto scolastico e il suo sviluppo non è attivo.
 
 Nella repository sono presenti i file di progetto di Eclipse nella versione 2023-03 (4.27.0). Il progetto è stato compilato utilizzando un runtime environment JavaSE 17.
 
-Una versione precompilata è disponibile nella sezione delle releases (compilata su macOS Ventura 13.3.1 per processori Intel).
+Una versione JAR è disponibile nella sezione delle releases.
 
 ## Utilizzo client-side
 
